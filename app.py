@@ -48,8 +48,8 @@ app.layout = html.Div([
         },        
         multiple=True  # Allow multiple files to be uploaded
     ),
-    # dcc.Graph(id='Mygraph', figure={}),
-    html.Div(id='output-data-upload')
+    dcc.Graph(id='Mygraph', figure={}),
+    # html.Div(id='output-data-upload')
 ])
 
 
@@ -74,35 +74,22 @@ def parse_data(contents, filename):
     return df
 
 
-#@app.callback(Output('Mygraph', 'figure'),
-#            [
-#                Input('upload-data', 'contents'),
-#                Input('upload-data', 'filename')
-#            ])
+@app.callback(Output('Mygraph', 'figure'),
+            [
+                Input('upload-data', 'contents'),
+                Input('upload-data', 'filename')
+            ])
 
-
-def old_update_graph(contents, filename):
-    fig = {
-        'layout': go.Layout(
-            plot_bgcolor=colors["graphBackground"],
-            paper_bgcolor=colors["graphBackground"])
-    }
-
-    if contents:
-        contents = contents[0]
-        filename = filename[0]
-        df = parse_data(contents, filename)
-        df = df.set_index(df.columns[0])
-        print(df)
-        fig['data'] = df.iplot(asFigure=True, kind='scatter', mode='lines+markers', size=1)
-
-    return fig
 
 def update_graph(contents, filename):
+    fig = {}
     if contents:
         contents = contents[0]
         filename = filename[0]
         df = parse_data(contents, filename)
+        # df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
+        print(df)
+        print(df.columns)
         df = df.set_index(df.columns[0])
         print("AQUI", df)
 
@@ -120,16 +107,16 @@ def update_graph(contents, filename):
     return fig
 
 
-@app.callback(
+""" @app.callback(
     Output('output-data-upload', 'children'),
     [
         Input('upload-data', 'contents'),
         Input('upload-data', 'filename')
     ]
-)
+) """
 
 
-def update_table(contents, filename):
+""" def update_table(contents, filename):
     table = html.Div()
 
     if contents:
@@ -143,16 +130,10 @@ def update_table(contents, filename):
             dash_table.DataTable(
                 data=df.to_dict('records'),
                 columns=[{'name': i, 'id': i} for i in df.columns]
-            ),
-            html.Hr(),
-            html.Div('Raw Content'),
-            html.Pre(contents[0:200] + '...', style={
-                'whiteSpace': 'pre-wrap',
-                'wordBreak': 'break-all'
-            })
+            )
         ])
 
-    return table
+    return table """
 
 
 if __name__ == '__main__':
