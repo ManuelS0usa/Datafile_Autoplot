@@ -1,5 +1,5 @@
 
-
+print()
 def upgrade_graph(contents, filename):
     fig = {
         'layout': go.Layout(
