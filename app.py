@@ -49,8 +49,8 @@ app.layout = html.Div([
         multiple=True  # Allow multiple files to be uploaded
     ),
     html.Div([html.Small('Acceptable file extensions: .csv, .xls, .xlsx, .txt, .tsv')], style={'marginLeft': '10px'}),
-    dcc.Graph(id='Mygraph', figure={}),
-    # html.Div(id='output-data-upload')
+    dcc.Graph(id='Mygraph'),
+    html.Div(id='output-data-upload')
 ])
 
 
@@ -82,11 +82,11 @@ def parse_data(contents, filename):
         Input('upload-data', 'filename')
     ])
 def update_graph(contents, filename):
-    # fig = {
-    #     'layout': go.Layout(
-    #         plot_bgcolor=colors["graphBackground"],
-    #         paper_bgcolor=colors["graphBackground"])
-    # }
+    fig = {
+        'layout': go.Layout(
+            plot_bgcolor=colors["graphBackground"],
+            paper_bgcolor=colors["graphBackground"])
+    }
 
     fig = {}
     if contents:
@@ -96,30 +96,13 @@ def update_graph(contents, filename):
         # df = df.set_index(df.columns[0])
         # fig['data'] = df.iplot(asFigure=True, kind='scatter', mode='lines+markers', size=1)
 
-        # xaxis = df[0]
-        # print(xaxis)
-
-        # x = np.linspace(0, 1, 200)
-        # y0 = np.random.randn(200) + 10
-        # y1 = np.random.randn(200)
-        # y2 = np.random.randn(200) - 10
-
-        # trace0 = go.Scatter(x=x, y=y0, mode='lines', name='lines')
-        # trace1 = go.Scatter(x=x, y=y1, mode='lines+markers', name='lines+markers')
-        # trace2 = go.Scatter(x=x, y=y2, mode='markers', name='markers')
-        # data = [trace0, trace1, trace2]
-
-        # layout = go.Layout(title="Lines and Markers")
-        # fig = go.Figure(data=data, layout=layout)
-
-        # print(fig)
-
         fig = px.scatter(df)
+        fig.update_traces(mode='lines+markers')
         fig.update_layout(clickmode='event+select')
     return fig
 
 
-""" @app.callback(
+@app.callback(
     Output('output-data-upload', 'children'),
     [
         Input('upload-data', 'contents'),
@@ -132,8 +115,8 @@ def update_table(contents, filename):
     if contents:
         contents = contents[0]
         filename = filename[0]
-        # df = parse_data(contents, filename)
-        df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
+        df = parse_data(contents, filename)
+        # df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
 
         table = html.Div([
             html.H5(filename),
@@ -143,7 +126,7 @@ def update_table(contents, filename):
             )
         ])
 
-    return table """
+    return table
 
 
 if __name__ == '__main__':
