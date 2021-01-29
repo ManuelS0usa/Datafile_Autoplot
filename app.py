@@ -11,6 +11,9 @@ import dash_html_components as html
 import dash_table
 
 import pandas as pd
+import numpy as np
+
+import plotly.express as px
 
 
 # import some pre created and available styling
@@ -32,10 +35,7 @@ app.layout = html.Div([
     # core elements
     dcc.Upload(
         id='upload-data',
-        children=html.Div([
-            'Drag and Drop or ',
-            html.A('Select Files')
-        ]),
+        children=html.Div(['Drag and Drop or ', html.A('Select Files')]),
         style={
             'width': '100%',
             'height': '60px',
@@ -45,9 +45,10 @@ app.layout = html.Div([
             'borderRadius': '5px',
             'textAlign': 'center',
             'margin': '10px'
-        },        
+        },
         multiple=True  # Allow multiple files to be uploaded
     ),
+    html.Div([html.Small('Acceptable file extensions: .csv, .xls, .xlsx, .txt, .tsv')], style={'marginLeft': '10px'}),
     dcc.Graph(id='Mygraph', figure={}),
     # html.Div(id='output-data-upload')
 ])
@@ -61,12 +62,12 @@ def parse_data(contents, filename):
         if 'csv' in filename:
             # Assume that the user uploaded a CSV or TXT file
             df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-        elif 'xls' in filename:
+        elif 'xls' or 'xlsx' in filename:
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
         elif 'txt' or 'tsv' in filename:
             # Assume that the user upl, delimiter = r'\s+'oaded an excel file
-            df = pd.read_csv(io.StringIO(decoded.decode('utf-8')), delimiter = r'\s+')
+            df = pd.read_csv(io.StringIO(decoded.decode('utf-8')), delimiter=r'\s+')
     except Exception as e:
         print(e)
         return html.Div(['There was an error processing this file.'])
@@ -74,36 +75,47 @@ def parse_data(contents, filename):
     return df
 
 
-@app.callback(Output('Mygraph', 'figure'),
-            [
-                Input('upload-data', 'contents'),
-                Input('upload-data', 'filename')
-            ])
-
-
+@app.callback(
+    Output('Mygraph', 'figure'),
+    [
+        Input('upload-data', 'contents'),
+        Input('upload-data', 'filename')
+    ])
 def update_graph(contents, filename):
+    # fig = {
+    #     'layout': go.Layout(
+    #         plot_bgcolor=colors["graphBackground"],
+    #         paper_bgcolor=colors["graphBackground"])
+    # }
+
     fig = {}
     if contents:
         contents = contents[0]
         filename = filename[0]
         df = parse_data(contents, filename)
-        # df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
-        print(df)
-        print(df.columns)
-        df = df.set_index(df.columns[0])
-        print("AQUI", df)
+        # df = df.set_index(df.columns[0])
+        # fig['data'] = df.iplot(asFigure=True, kind='scatter', mode='lines+markers', size=1)
 
-        fig = go.Figure(
-            data=[go.Scatter(
-                mode='lines+markers',
-                size=1
-            )]
-        )
+        # xaxis = df[0]
+        # print(xaxis)
 
-        fig.update_layout(
-            plot_bgcolor=colors["graphBackground"],
-            paper_bgcolor=colors["graphBackground"]
-        )
+        # x = np.linspace(0, 1, 200)
+        # y0 = np.random.randn(200) + 10
+        # y1 = np.random.randn(200)
+        # y2 = np.random.randn(200) - 10
+
+        # trace0 = go.Scatter(x=x, y=y0, mode='lines', name='lines')
+        # trace1 = go.Scatter(x=x, y=y1, mode='lines+markers', name='lines+markers')
+        # trace2 = go.Scatter(x=x, y=y2, mode='markers', name='markers')
+        # data = [trace0, trace1, trace2]
+
+        # layout = go.Layout(title="Lines and Markers")
+        # fig = go.Figure(data=data, layout=layout)
+
+        # print(fig)
+
+        fig = px.scatter(df)
+        fig.update_layout(clickmode='event+select')
     return fig
 
 
@@ -113,10 +125,8 @@ def update_graph(contents, filename):
         Input('upload-data', 'contents'),
         Input('upload-data', 'filename')
     ]
-) """
-
-
-""" def update_table(contents, filename):
+)
+def update_table(contents, filename):
     table = html.Div()
 
     if contents:
